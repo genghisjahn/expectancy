@@ -18,31 +18,27 @@ var population []*tribble
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
 var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
-
-var s1 = rand.NewSource(time.Now().UnixNano())
-var r1 = rand.New(s1)
+var maxpopulation = flag.Int("maxpop", 100, "max population, default is 10")
 
 type tribble struct {
 	Name string
 	Age  int
 	Dead bool
-	Incr int
+	Incr float64
 }
 
-var maxpopulation = 1000000
-
-func newTribble(name string, incr int) tribble {
+func newTribble(name string, incr float64) tribble {
 	return tribble{Name: name, Incr: incr}
 }
 
 func (t *tribble) Tick() {
-	var r = 0
+	var r float64
 	defer func() {
 		if err := recover(); err != nil {
 			t.Tick()
 		}
 	}()
-	r = r1.Intn(100) + 1
+	r = rand.Float64() * float64(chance)
 	if r <= t.Incr {
 		t.Dead = true
 		return
@@ -58,7 +54,6 @@ func (t *tribble) Live() {
 		}
 		t.Tick()
 	}
-	//fmt.Printf("%v died at age %v\n", t.Name, t.Age)
 	wg.Done()
 }
 
@@ -77,9 +72,24 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	//This is the program
+	worldLoop()
 
-	for i := 0; i < maxpopulation; i++ {
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		runtime.GC()    // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
+	}
+}
+func worldLoop() {
+	rand.Seed(time.Now().UnixNano())
+	mp := *maxpopulation
+	for i := 0; i < mp; i++ {
 		wg.Add(1)
 		t := newTribble(generateStupidName(), 1)
 		population = append(population, &t)
@@ -95,18 +105,7 @@ func main() {
 		}
 		total += float64(v.Age)
 	}
+	fmt.Println("Population Size:", mp)
 	fmt.Println("Max Age:", max)
 	fmt.Println("Average:", total/float64(len(population)))
-
-	if *memprofile != "" {
-		f, err := os.Create(*memprofile)
-		if err != nil {
-			log.Fatal("could not create memory profile: ", err)
-		}
-		defer f.Close() // error handling omitted for example
-		runtime.GC()    // get up-to-date statistics
-		if err := pprof.WriteHeapProfile(f); err != nil {
-			log.Fatal("could not write memory profile: ", err)
-		}
-	}
 }

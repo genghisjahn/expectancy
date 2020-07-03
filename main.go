@@ -48,7 +48,7 @@ func (t *tribble) Live() {
 func main() {
 	for i := 0; i < 1; i++ {
 		wg.Add(1)
-		t := newTribble(GenerateStupidName(), 1)
+		t := newTribble(generateStupidName(), 1)
 		t.Live()
 	}
 

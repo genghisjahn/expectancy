@@ -30,7 +30,7 @@ func lowercaseFirstLetter(word string) string {
 	return string(a)
 }
 
-func GenerateStupidName() string {
+func generateStupidName() string {
 	rand.Seed(time.Now().UnixNano())
 	noun1 := uppercaseFirstLetter(randomNoun())
 	noun2 := uppercaseFirstLetter(randomNoun())

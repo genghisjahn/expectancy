@@ -9,15 +9,13 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"sort"
-	"sync"
 	"time"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
-var chance int = 100
-var wg sync.WaitGroup
+var chance int = 120
 var population []*tribble
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
@@ -53,7 +51,6 @@ func (t *tribble) Live() {
 		}
 		t.Tick()
 	}
-	wg.Done()
 }
 
 func main() {
@@ -94,10 +91,8 @@ func worldLoop() {
 		population = append(population, &t)
 	}
 	for _, v := range population {
-		wg.Add(1)
-		go v.Live()
+		v.Live()
 	}
-	wg.Wait()
 
 	var total float64
 
@@ -121,8 +116,8 @@ func worldLoop() {
 	s := p.Sprintf("%d", mp)
 	fmt.Println("Population Size:", s)
 	fmt.Println("Max Age:", population[len(population)-1].Age)
-	fmt.Println("Average:", total/float64(len(population)))
+	fmt.Printf("Average: %.3f\n", total/float64(len(population)))
 	fmt.Println("Median:", median)
 	duration := time.Since(ts)
-	fmt.Println("Duration: " + fmt.Sprintf("%v", duration.Seconds()) + " seconds")
+	fmt.Println("Duration: " + fmt.Sprintf("%d", duration.Milliseconds()) + " ms")
 }

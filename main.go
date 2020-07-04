@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/pprof"
+	"sort"
 	"sync"
 	"time"
 
@@ -99,19 +100,29 @@ func worldLoop() {
 	wg.Wait()
 
 	var total float64
-	var max int
+
+	sort.Slice(population, func(i, j int) bool {
+		return population[i].Age < population[j].Age
+	})
+
 	for _, v := range population {
-		if v.Age > max {
-			max = v.Age
-		}
 		total += float64(v.Age)
+	}
+	lenpop := len(population)
+	median := 0.0
+	if lenpop%2 == 0 {
+		f1 := float64(population[(lenpop-1)/2].Age)
+		f2 := float64(population[((lenpop-1)/2)+1].Age)
+		median = (f1 + f2) / 2.0
+	} else {
+		median = float64(population[(lenpop)/2].Age)
 	}
 	p := message.NewPrinter(language.English)
 	s := p.Sprintf("%d", mp)
 	fmt.Println("Population Size:", s)
-	fmt.Println("Max Age:", max)
+	fmt.Println("Max Age:", population[len(population)-1].Age)
 	fmt.Println("Average:", total/float64(len(population)))
-
+	fmt.Println("Median:", median)
 	duration := time.Since(ts)
 	fmt.Println("Duration: " + fmt.Sprintf("%v", duration.Seconds()) + " seconds")
 }

@@ -84,6 +84,7 @@ func main() {
 }
 func worldLoop() {
 	ts := time.Now()
+	var total float64
 	rand.Seed(time.Now().UnixNano())
 	mp := *maxpopulation
 	for i := 0; i < mp; i++ {
@@ -92,17 +93,13 @@ func worldLoop() {
 	}
 	for _, v := range population {
 		v.Live()
+		total += float64(v.Age)
 	}
-
-	var total float64
 
 	sort.Slice(population, func(i, j int) bool {
 		return population[i].Age < population[j].Age
 	})
 
-	for _, v := range population {
-		total += float64(v.Age)
-	}
 	lenpop := len(population)
 	median := 0.0
 	if lenpop%2 == 0 {

@@ -33,11 +33,11 @@ func newTribble(name string, incr float64) tribble {
 
 func (t *tribble) Tick() {
 	var r float64
-	defer func() {
-		if err := recover(); err != nil {
-			t.Tick()
-		}
-	}()
+	// defer func() {
+	// 	if err := recover(); err != nil {
+	// 		t.Tick()
+	// 	}
+	// }()
 	r = rand.Float64() * float64(chance)
 	if r <= t.Incr {
 		t.Dead = true
@@ -87,13 +87,17 @@ func main() {
 	}
 }
 func worldLoop() {
+	log.Println("Starting...")
 	rand.Seed(time.Now().UnixNano())
 	mp := *maxpopulation
 	for i := 0; i < mp; i++ {
-		wg.Add(1)
 		t := newTribble(generateStupidName(), 1)
 		population = append(population, &t)
-		go t.Live()
+	}
+	log.Println("Done with making tribbles")
+	for _, v := range population {
+		wg.Add(1)
+		go v.Live()
 	}
 	wg.Wait()
 
@@ -108,4 +112,5 @@ func worldLoop() {
 	fmt.Println("Population Size:", mp)
 	fmt.Println("Max Age:", max)
 	fmt.Println("Average:", total/float64(len(population)))
+	log.Println("Complete...")
 }

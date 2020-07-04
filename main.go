@@ -10,6 +10,9 @@ import (
 	"runtime/pprof"
 	"sync"
 	"time"
+
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 var chance int = 100
@@ -27,17 +30,12 @@ type tribble struct {
 	Incr float64
 }
 
-func newTribble(name string, incr float64) tribble {
-	return tribble{Name: name, Incr: incr}
+func newTribble(incr float64) tribble {
+	return tribble{Incr: incr}
 }
 
 func (t *tribble) Tick() {
 	var r float64
-	// defer func() {
-	// 	if err := recover(); err != nil {
-	// 		t.Tick()
-	// 	}
-	// }()
 	r = rand.Float64() * float64(chance)
 	if r <= t.Incr {
 		t.Dead = true
@@ -87,14 +85,13 @@ func main() {
 	}
 }
 func worldLoop() {
-	log.Println("Starting...")
+	ts := time.Now()
 	rand.Seed(time.Now().UnixNano())
 	mp := *maxpopulation
 	for i := 0; i < mp; i++ {
-		t := newTribble(generateStupidName(), 1)
+		t := newTribble(1)
 		population = append(population, &t)
 	}
-	log.Println("Done with making tribbles")
 	for _, v := range population {
 		wg.Add(1)
 		go v.Live()
@@ -109,8 +106,12 @@ func worldLoop() {
 		}
 		total += float64(v.Age)
 	}
-	fmt.Println("Population Size:", mp)
+	p := message.NewPrinter(language.English)
+	s := p.Sprintf("%d", mp)
+	fmt.Println("Population Size:", s)
 	fmt.Println("Max Age:", max)
 	fmt.Println("Average:", total/float64(len(population)))
-	log.Println("Complete...")
+
+	duration := time.Since(ts)
+	fmt.Println("Duration: " + fmt.Sprintf("%v", duration.Seconds()) + " seconds")
 }

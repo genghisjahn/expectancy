@@ -22,8 +22,6 @@ var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
 var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 var maxpopulation = flag.Int("maxpop", 100, "max population, default is 10")
 
-//var wg = sync.WaitGroup{}
-
 type tribble struct {
 	Name string
 	Age  int
@@ -52,7 +50,6 @@ func (t *tribble) Live() {
 		}
 		t.Tick()
 	}
-	//wg.Done()
 }
 
 func main() {
@@ -95,10 +92,10 @@ func worldLoop() {
 	}
 	ages := []int{*maxpopulation}
 	for _, v := range population {
-		//wg.Add(1)
 		v.Live()
+	}
+	for _, v := range population {
 		ages = append(ages, v.Age)
-		//wg.Wait()
 		total += float64(v.Age)
 	}
 

@@ -47,7 +47,7 @@ func (t *tribble) Tick() {
 }
 
 func (t *tribble) Live() {
-	wg.Add(1)
+
 	for {
 		if t.Dead {
 			break
@@ -96,6 +96,7 @@ func worldLoop() {
 		population = append(population, &t)
 	}
 	for _, v := range population {
+		wg.Add(1)
 		go v.Live()
 		total += float64(v.Age)
 	}

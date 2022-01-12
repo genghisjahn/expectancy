@@ -36,8 +36,7 @@ func newTribble(incr float64) tribble {
 }
 
 func (t *tribble) Tick() {
-	var r float64
-	r = rand.Float64() * float64(chance)
+	var r = rand.Float64() * float64(chance)
 	if r <= t.Incr {
 		t.Dead = true
 		return

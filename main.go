@@ -93,8 +93,6 @@ func worldLoop() {
 	ages := []int{*maxpopulation}
 	for _, v := range population {
 		v.Live()
-	}
-	for _, v := range population {
 		ages = append(ages, v.Age)
 		total += float64(v.Age)
 	}

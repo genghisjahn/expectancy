@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"sort"
+	"sync"
 	"time"
 
 	"golang.org/x/text/language"
@@ -22,7 +23,7 @@ var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
 var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 var maxpopulation = flag.Int("maxpop", 100, "max population, default is 10")
 
-//var wg = sync.WaitGroup{}
+var wg = sync.WaitGroup{}
 
 type tribble struct {
 	Name string
@@ -53,7 +54,7 @@ func (t *tribble) Live() {
 		}
 		t.Tick()
 	}
-	//wg.Done()
+	wg.Done()
 }
 
 func main() {
@@ -95,9 +96,9 @@ func worldLoop() {
 		population = append(population, &t)
 	}
 	for _, v := range population {
-		//wg.Add(1)
-		v.Live()
-		//wg.Wait()
+		wg.Add(1)
+		go v.Live()
+		wg.Wait()
 		total += float64(v.Age)
 	}
 

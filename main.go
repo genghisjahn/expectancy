@@ -94,32 +94,35 @@ func worldLoop() {
 		t := newTribble(1)
 		population = append(population, &t)
 	}
+	ages := []int{*maxpopulation}
 	for _, v := range population {
 		//wg.Add(1)
 		v.Live()
+		ages = append(ages, v.Age)
 		//wg.Wait()
 		total += float64(v.Age)
 	}
 
-	sort.Slice(population, func(i, j int) bool {
-		return population[i].Age < population[j].Age
-	})
+	timesort := time.Now()
 
+	sort.Ints(ages)
+	sortduration := time.Since(timesort)
 	lenpop := len(population)
 	median := 0.0
 	if lenpop%2 == 0 {
-		f1 := float64(population[(lenpop-1)/2].Age)
-		f2 := float64(population[((lenpop-1)/2)+1].Age)
+		f1 := float64(ages[(lenpop-1)/2])
+		f2 := float64(ages[((lenpop-1)/2)+1])
 		median = (f1 + f2) / 2.0
 	} else {
-		median = float64(population[(lenpop)/2].Age)
+		median = float64(ages[(lenpop)/2])
 	}
 	p := message.NewPrinter(language.English)
 	s := p.Sprintf("%d", mp)
 	fmt.Println("Population Size:", s)
-	fmt.Println("Max Age:", population[len(population)-1].Age)
-	fmt.Printf("Average: %.3f\n", total/float64(len(population)))
+	fmt.Println("Max Age:", ages[len(ages)-2])
+	fmt.Printf("Average: %.3f\n", total/float64(len(ages)))
 	fmt.Println("Median:", median)
 	duration := time.Since(ts)
 	fmt.Println("Duration: " + fmt.Sprintf("%d", duration.Milliseconds()) + " ms")
+	fmt.Println("Sort Percentage:" + fmt.Sprintf("%f  percent", (float64(sortduration.Milliseconds())/float64(duration.Milliseconds()))*100.0))
 }

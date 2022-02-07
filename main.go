@@ -15,7 +15,7 @@ import (
 	"golang.org/x/text/message"
 )
 
-var chance int = 120
+var chance float64 = 120
 var population []*tribble
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
@@ -34,7 +34,7 @@ func newTribble(incr float64) tribble {
 }
 
 func (t *tribble) Tick() {
-	var r = rand.Float64() * float64(chance)
+	var r = rand.Float64() * chance
 	if r <= t.Incr {
 		t.Dead = true
 		return
